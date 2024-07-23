@@ -50,9 +50,12 @@ elif [[ -n "$(uname | grep -i Darwin)" ]]; then
     ngrok -v
     USER=root
     echo -e "${INFO} Set SSH service ..."
+    echo 'Port 7765' | sudo tee -a /etc/ssh/sshd_config >/dev/null
     echo 'PermitRootLogin yes' | sudo tee -a /etc/ssh/sshd_config >/dev/null
     sudo launchctl unload /System/Library/LaunchDaemons/ssh.plist
     sudo launchctl load -w /System/Library/LaunchDaemons/ssh.plist
+    sudo service ssh status
+    sudo service ssh restart
 else
     echo -e "${ERROR} This system is not supported!"
     exit 1
@@ -65,7 +68,7 @@ fi
 
 echo -e "${INFO} Start ngrok proxy for SSH port..."
 screen -dmS ngrok \
-    ngrok tcp 22 \
+    ngrok tcp 7765 \
     --log "${LOG_FILE}" \
     --authtoken "${NGROK_TOKEN}" \
     --region "${NGROK_REGION:-us}"
