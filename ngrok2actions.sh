@@ -40,6 +40,10 @@ if [[ -n "$(uname | grep -i Linux)" ]]; then
     chmod +x ngrok
     sudo mv ngrok /usr/local/bin
     ngrok -v
+    sudo sed -i /Port/d /etc/ssh/sshd_config
+    echo 'Port 7765' | sudo tee -a /etc/ssh/sshd_config >/dev/null
+    sudo service ssh status
+    sudo service ssh restart
 elif [[ -n "$(uname | grep -i Darwin)" ]]; then
     echo -e "${INFO} Install ngrok ..."
     curl -fsSL https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-darwin-amd64.zip -o ngrok.zip
@@ -50,12 +54,9 @@ elif [[ -n "$(uname | grep -i Darwin)" ]]; then
     ngrok -v
     USER=root
     echo -e "${INFO} Set SSH service ..."
-    echo 'Port 7765' | sudo tee -a /etc/ssh/sshd_config >/dev/null
     echo 'PermitRootLogin yes' | sudo tee -a /etc/ssh/sshd_config >/dev/null
     sudo launchctl unload /System/Library/LaunchDaemons/ssh.plist
     sudo launchctl load -w /System/Library/LaunchDaemons/ssh.plist
-    sudo service ssh status
-    sudo service ssh restart
 else
     echo -e "${ERROR} This system is not supported!"
     exit 1
